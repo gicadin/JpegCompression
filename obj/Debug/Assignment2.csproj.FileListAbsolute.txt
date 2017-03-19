@@ -1,0 +1,9 @@
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\bin\Debug\Assignment2.exe.config
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\bin\Debug\Assignment2.exe
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\bin\Debug\Assignment2.pdb
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.csprojResolveAssemblyReference.cache
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.Form1.resources
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.Properties.Resources.resources
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.csproj.GenerateResource.Cache
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.exe
+C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.pdb
