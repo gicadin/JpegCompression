@@ -125,13 +125,11 @@ namespace Assignment2
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     _rightImgBitmat = new Bitmap(dlg.FileName);
-                    encoder.compressPFrame(_rightImgBitmat, "asdfasd");
-                    RightImg_box.Image = _rightImgBitmat;
+                    
+                   
                 }
             }
 
-                       
-            /*
             SaveFileDialog saveFileDialogue_ = new SaveFileDialog();
             saveFileDialogue_.Title = "Save";
             saveFileDialogue_.Filter = "Andrei pFile|*.pandrei";
@@ -144,10 +142,11 @@ namespace Assignment2
                 if (imgBitmap != null)
                 {
                     //encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
-
+                    encoder.compressPFrame(_rightImgBitmat, saveFileDialogue_.FileName);
+                    RightImg_box.Image = _rightImgBitmat;
                 }
             }
-            */
+           
         }
 
         private void convertToolStripMenuItem_Click(object sender, EventArgs e)

@@ -64,6 +64,91 @@ namespace Assignment2
             findMotionVectors();
 
             drawMV();
+
+            FileStream fileStream = new FileStream(filePath, FileMode.Create);
+            BinaryWriter writer = new BinaryWriter(fileStream);
+
+            writeMotionVectors(writer);
+            writePBlocks(writer, _yBlocks);
+
+            writer.Close();
+            fileStream.Close();
+
+        }
+
+        private void writeMotionVectors(BinaryWriter writer)
+        {
+            sbyte x, y;
+
+            for ( int i = 0; i < _motionVectors.Length; i++)
+            {
+                x = Convert.ToSByte(_motionVectors[i].X);
+                y = Convert.ToSByte(_motionVectors[i].Y);
+
+                //writer.Write((byte)(object)x);
+                //writer.Write((byte)(object)y);
+            }
+        }
+
+        private void writePBlocks(BinaryWriter writer, ImageBlock[,] imgBlock)
+        {
+            int[] blockInts;
+            sbyte[] blockBytes;
+            byte[] equivalentBytes;
+            int index = 0;
+            for (int i = 0; i < imgBlock.GetLength(0); i++)
+            {
+                for (int j = 0; j < imgBlock.GetLength(1); j++)
+                {
+
+                    if (_motionVectors[index].X == 0 || _motionVectors[index].Y == 0)
+                    {
+                        blockInts = new int[] { 0, 64 };
+                        index++;
+                    }
+                    else
+                    {
+                        meanReduce(imgBlock[i, j].imgBlock);
+                        blockInts = runLengthEncoding(zigzag(pQuantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)))));
+                        index++;
+                    }      
+
+                    blockBytes = new sbyte[blockInts.Length];
+
+                    for (int k = 0; k < blockInts.Length; k++)
+                    {
+                        // This is a test to see if any values are greater than 128
+                        if (blockInts[k] > 127)
+                            blockInts[k] = 127;
+
+                        if (blockInts[k] < -128)
+                            blockInts[k] = -128;
+
+                        blockBytes[k] = Convert.ToSByte(blockInts[k]);
+                    }
+                    equivalentBytes = (byte[])(object)blockBytes;
+                    writer.Write(equivalentBytes, 0, equivalentBytes.Length);
+
+                }
+            }
+        }
+
+        private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
+        {
+            int relativeX = x * 8;
+            int relativeY = y * 8;
+
+            double[,] newF = new double[8, 8];
+
+            for ( int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    newF[i, j] = imgBlock.imgBlock[i, j] - _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                }
+            }
+
+            return newF;
         }
 
         private void drawMV()
@@ -445,6 +530,23 @@ namespace Assignment2
             return newF;
         }
 
+        private int[,] pQuantization(double[,] F)
+        {
+            int SCALING = 4;
+
+            int[,] newF = new int[8, 8];
+
+            for (int i = 0, k = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++, k++)
+                {
+                    newF[i, j] = (int)Math.Floor(F[i, j] / SCALING);
+                }
+            }
+
+            return newF;
+        }
+
         private int[] zigzag(int[,] F)
         {
             int[] newF = new int[64];
@@ -481,7 +583,7 @@ namespace Assignment2
         private int[] runLengthEncoding(int[] F)
         {
 
-            int[] newF = new int[70];   // may crash in very unlikely cases
+            int[] newF = new int[128];   // may crash in very unlikely cases
 
             bool flag = false;
             int j = 0, counter = 0; // j - index of the new array , counter - counts the length of 0's

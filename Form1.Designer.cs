@@ -35,7 +35,6 @@
             this.convertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.decompressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CompressBtn = new System.Windows.Forms.Button();
             this.RightImg_box = new System.Windows.Forms.PictureBox();
             this.compressPFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.LeftImage_Box)).BeginInit();
@@ -104,16 +103,6 @@
             this.decompressToolStripMenuItem.Text = "Decompress";
             this.decompressToolStripMenuItem.Click += new System.EventHandler(this.decompressToolStripMenuItem_Click);
             // 
-            // CompressBtn
-            // 
-            this.CompressBtn.Location = new System.Drawing.Point(452, 694);
-            this.CompressBtn.Name = "CompressBtn";
-            this.CompressBtn.Size = new System.Drawing.Size(111, 48);
-            this.CompressBtn.TabIndex = 3;
-            this.CompressBtn.Text = "Compress";
-            this.CompressBtn.UseVisualStyleBackColor = true;
-            this.CompressBtn.Click += new System.EventHandler(this.CompressBtn_Click);
-            // 
             // RightImg_box
             // 
             this.RightImg_box.Location = new System.Drawing.Point(518, 42);
@@ -135,7 +124,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1024, 903);
             this.Controls.Add(this.RightImg_box);
-            this.Controls.Add(this.CompressBtn);
             this.Controls.Add(this.LeftImage_Box);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -157,7 +145,6 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem convertToolStripMenuItem;
-        private System.Windows.Forms.Button CompressBtn;
         private System.Windows.Forms.ToolStripMenuItem compressToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem decompressToolStripMenuItem;
         private System.Windows.Forms.PictureBox RightImg_box;
