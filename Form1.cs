@@ -18,6 +18,8 @@ namespace Assignment2
 
     public partial class Form1 : Form
     {
+        Encoder encoder;
+        Decoder decoder;
 
         Bitmap imgBitmap, _rightImgBitmat;
         ImageBlock[,] YBlocks, CbBlocks, CrBlocks; 
@@ -30,7 +32,7 @@ namespace Assignment2
 
         const int NUM_PIXEL_BLOCK = 64;
 
-        int[] luminanceTable = {
+        public static int[] luminanceTable = {
             16, 11, 10, 16, 24, 40, 51, 61,
             12, 12, 14, 19, 26, 58, 60, 55,
             14, 13, 16, 24, 40, 57, 69, 56,
@@ -41,7 +43,7 @@ namespace Assignment2
             72, 92, 95, 98, 112, 100, 103, 99
         };
 
-        int[] chrominanceTable =
+        public static int[] chrominanceTable =
         {
             17, 18, 24, 47, 99, 99, 99, 99,
             18, 21, 26, 66, 99, 99, 99, 99,
@@ -80,6 +82,8 @@ namespace Assignment2
         public Form1()
         {
             InitializeComponent();
+            encoder = new Encoder();
+            decoder = new Decoder();
         }
 
         private void openToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -524,16 +528,22 @@ namespace Assignment2
             if (saveFileDialogue_.FileName != "")
             {
                 //Console.Text += "The file name is: " + saveFileDialogue_.FileName + System.Environment.NewLine;
-                compressImg(saveFileDialogue_.FileName);
+                //compressImg(saveFileDialogue_.FileName);
+                if ( imgBitmap != null )
+                    encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
             }
         }
 
         private void decompressToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Decompress";
+            ofd.Filter = "Andrei File|*.andrei";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                decompressImg(ofd.FileName);
+                //decompressImg(ofd.FileName);
+                _rightImgBitmat = decoder.decompressImage(ofd.FileName);
+                rightImg_box.Image = _rightImgBitmat;
             }
         }
 
@@ -657,8 +667,6 @@ namespace Assignment2
 
         public void compressImg(String filePath)
         {
-            int supposedSize = 0;       // test vars
-            int actualSize = 0;         // test vars
 
             if (LeftImage_Box == null)
                 return;
@@ -691,20 +699,16 @@ namespace Assignment2
                         if (blockInts[k] > 128)
                             blockInts[k] = 128;
 
-                        validationTest.Add(blockInts[k]);           // to be deleted later
+                        //validationTest.Add(blockInts[k]);           // to be deleted later
                             
                         blockBytes[k] = Convert.ToSByte(blockInts[k]);
                     }
                     equivalentBytes = (byte[])(object)blockBytes;
                     writer.Write(equivalentBytes, 0, equivalentBytes.Length);
 
-                    actualSize = validateCompressionFile(validationTest);
-                    supposedSize += 64;
+                    //actualSize = validateCompressionFile(validationTest);
+                    //supposedSize += 64;
 
-                    if ( actualSize != supposedSize )
-                    {
-                        int asfd = 0;
-                    }
                 }
             }
 
@@ -715,12 +719,6 @@ namespace Assignment2
                     meanReduce(CbBlocks[i, j].imgBlock);
                     blockInts = runLengthEncoding(zigzag(quantization(dct(CbBlocks[i, j].imgBlock), chrominanceTable)));
 
-                    if (validateCompressedSize(blockInts) != 64)
-                    {
-                        int asdf = 0;
-                    }
-
-
                     blockBytes = new sbyte[blockInts.Length];
 
                     for (int k = 0; k < blockInts.Length; k++)
@@ -729,20 +727,11 @@ namespace Assignment2
                         if (blockInts[k] == 128)
                             blockInts[k] = 128;
 
-                        validationTest.Add(blockInts[k]);
-
                         blockBytes[k] = Convert.ToSByte(blockInts[k]);
                     }
                     equivalentBytes = (byte[])(object)blockBytes;
                     writer.Write(equivalentBytes, 0, equivalentBytes.Length);
 
-                    actualSize = validateCompressionFile(validationTest);
-                    supposedSize += 64;
-
-                    if (actualSize != supposedSize)
-                    {
-                        int asfd = 0;
-                    }
                 }
             }
 
@@ -753,11 +742,6 @@ namespace Assignment2
                     meanReduce(CrBlocks[i, j].imgBlock);
                     blockInts = runLengthEncoding(zigzag(quantization(dct(CrBlocks[i, j].imgBlock), chrominanceTable)));
                     
-                    if ( validateCompressedSize(blockInts) != 64)
-                    {
-                        int asdf = 0;
-                    }
-
                     blockBytes = new sbyte[blockInts.Length];
 
                     for (int k = 0; k < blockInts.Length; k++)
@@ -773,13 +757,6 @@ namespace Assignment2
                     equivalentBytes = (byte[])(object)blockBytes;
                     writer.Write(equivalentBytes, 0, equivalentBytes.Length);
 
-                    actualSize = validateCompressionFile(validationTest);
-                    supposedSize += 64;
-
-                    if (actualSize != supposedSize)
-                    {
-                        int asfd = 0;
-                    }
                 }
             }
 
@@ -928,7 +905,7 @@ namespace Assignment2
                     index += 64;
                 }
             }
-
+            return;
         }
 
         private void drawDecompressedImage()
