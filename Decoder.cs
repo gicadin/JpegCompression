@@ -64,24 +64,27 @@ namespace Assignment2
 
             reader.Close();
 
-            int blockImgWidth = _imgWidth + _imgWidth % 8;
-            int blockImgHeight = _imgHeight + _imgHeight % 8;
+            int blockImgWidth = (int)Math.Ceiling((double)_imgWidth / 8);
+            int blockImgHeight = (int)Math.Ceiling((double)_imgHeight / 8);
+            int ySize = blockImgWidth * blockImgHeight * 64;
 
-            int size = blockImgWidth * blockImgHeight;
-            int cbSize = size + blockImgWidth * blockImgHeight / 4;
+            blockImgWidth = (int)Math.Ceiling((double)_imgWidth / 16);
+            blockImgHeight = (int)Math.Ceiling((double)_imgHeight / 16);
 
-            int[] fileContentsDecoded = runLengthDecode(fileContents, size + size / 2);
+            int cbSize = blockImgWidth * blockImgHeight * 64;
+
+            int[] fileContentsDecoded = runLengthDecode(fileContents, ySize + cbSize * 2);
             fileContents = null;
 
-            _yValues = new double[size];
-            _cbValues = new double[size / 4];
-            _crValues = new double[size / 4];
+            _yValues = new double[ySize];
+            _cbValues = new double[cbSize];
+            _crValues = new double[cbSize];
 
             for (int i = 0, j = 0, k = 0; i < fileContentsDecoded.Length; i++)
             {
-                if (i < size)
+                if (i < ySize)
                     _yValues[i] = fileContentsDecoded[i];
-                else if (i < cbSize)
+                else if (i < ySize + cbSize)
                     _cbValues[j++] = fileContentsDecoded[i];
                 else
                     _crValues[k++] = fileContentsDecoded[i];
@@ -360,7 +363,7 @@ namespace Assignment2
 
         private double[] interpolateCbValues()
         {
-            int[,] newCbValues = new int[_imgWidth, _imgHeight];
+            int[,] newCbValues = new int[_imgHeight, _imgWidth];
             int index = 0;
 
             for (int x = 0; x < _imgHeight; x += 2)
@@ -393,7 +396,7 @@ namespace Assignment2
 
         private double[] interpolateCrValues()
         {
-            int[,] newCrValues = new int[_imgWidth, _imgHeight];
+            int[,] newCrValues = new int[_imgHeight, _imgWidth];
             int index = 0;
 
             for (int x = 1; x < _imgHeight; x += 2)
