@@ -21,7 +21,7 @@ namespace Assignment2
         Encoder encoder;
         Decoder decoder;
 
-        Bitmap imgBitmap, _rightImgBitmat, _rightMVBitmap;
+        Bitmap imgBitmap, _rightImgBitmat, _bttmImgBitmap;
         ImageBlock[,] YBlocks, CbBlocks, CrBlocks; 
 
         double[] yValues, cbValues, crValues;
@@ -143,10 +143,22 @@ namespace Assignment2
                 {
                     //encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
                     encoder.compressPFrame(_rightImgBitmat, saveFileDialogue_.FileName);
-                    RightImg_box.Image = _rightImgBitmat;
+                    RightImg_Box.Image = _rightImgBitmat;
                 }
             }
            
+        }
+
+        private void decompressPFrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Title = "Decompress";
+            ofd.Filter = "Andrei pFile|*.pandrei";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                decoder.decompressPFrame(ofd.FileName);
+                //BttmImg_Box.Image = _bttmImgBitmap;
+            }
         }
 
         private void convertToolStripMenuItem_Click(object sender, EventArgs e)
@@ -184,7 +196,7 @@ namespace Assignment2
             }
 
             LeftImage_Box.Image = newImage;
-            RightImg_box.Image = oldImage;
+            RightImg_Box.Image = oldImage;
         }
 
         private void compressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -213,7 +225,7 @@ namespace Assignment2
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _rightImgBitmat = decoder.decompressImage(ofd.FileName);
-                RightImg_box.Image = _rightImgBitmat;
+                RightImg_Box.Image = _rightImgBitmat;
             }
         }
 

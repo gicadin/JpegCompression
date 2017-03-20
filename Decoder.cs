@@ -18,6 +18,9 @@ namespace Assignment2
 
         private Bitmap _imgBitmap;
 
+        private Point[] _motionVectors;
+        private double[,] _yIFrame;
+
         public Bitmap decompressImage(String filePath)
         {
             readFileIntoValues(filePath);
@@ -33,6 +36,8 @@ namespace Assignment2
             _crValues = chBlockToValues(_crBlocks);
             _crBlocks = null;
 
+            populateIFrame();
+
             _cbValues = interpolateCbValues();
             _crValues = interpolateCrValues();
 
@@ -43,6 +48,42 @@ namespace Assignment2
             _crValues = null;
 
             return _imgBitmap;
+        }
+
+        public void decompressPFrame(String filePath)
+        {
+            readMotionVectors(filePath);
+
+            return;
+        }
+
+
+
+        private void readMotionVectors(String filePath)
+        {
+            BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open));
+            int size = reader.ReadInt32();
+
+            _motionVectors = new Point[size];
+
+            for ( int i = 0; i < size; i++)
+            {
+                _motionVectors[i].X = Convert.ToInt32(reader.ReadSByte());
+                _motionVectors[i].Y = Convert.ToInt32(reader.ReadSByte());
+            }
+
+            return;
+        }
+
+        // Creates a image matric of y values - to be used as an I-Frame by P-Frame for MAD
+        private void populateIFrame()
+        {
+            _yIFrame = new double[_imgWidth, _imgHeight];
+
+            int index = 0;
+            for (int x = 0; x < _imgHeight; x++)
+                for (int y = 0; y < _imgWidth; y++)
+                    _yIFrame[x, y] = _yValues[index++];
         }
 
         private void readFileIntoValues(String filePath)

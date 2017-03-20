@@ -79,14 +79,17 @@ namespace Assignment2
         private void writeMotionVectors(BinaryWriter writer)
         {
             sbyte x, y;
+            int size = _motionVectors.Length;
+
+            writer.Write(Convert.ToInt32(size));
 
             for ( int i = 0; i < _motionVectors.Length; i++)
             {
                 x = Convert.ToSByte(_motionVectors[i].X);
                 y = Convert.ToSByte(_motionVectors[i].Y);
 
-                //writer.Write((byte)(object)x);
-                //writer.Write((byte)(object)y);
+                writer.Write((byte)x);
+                writer.Write((byte)y);
             }
         }
 
@@ -101,14 +104,14 @@ namespace Assignment2
                 for (int j = 0; j < imgBlock.GetLength(1); j++)
                 {
 
-                    if (_motionVectors[index].X == 0 || _motionVectors[index].Y == 0)
+                    if (_motionVectors[index].X == 0 && _motionVectors[index].Y == 0)
                     {
                         blockInts = new int[] { 0, 64 };
                         index++;
                     }
                     else
                     {
-                        meanReduce(imgBlock[i, j].imgBlock);
+                        //meanReduce(imgBlock[i, j].imgBlock);
                         blockInts = runLengthEncoding(zigzag(pQuantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)))));
                         index++;
                     }      
@@ -135,8 +138,8 @@ namespace Assignment2
 
         private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
         {
-            int relativeX = x * 8;
-            int relativeY = y * 8;
+            int relativeX = x * 8 + 4;
+            int relativeY = y * 8 + 4;
 
             double[,] newF = new double[8, 8];
 
@@ -144,6 +147,7 @@ namespace Assignment2
             {
                 for (int j = 0; j < 8; j++)
                 {
+                    double tmp = _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
                     newF[i, j] = imgBlock.imgBlock[i, j] - _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
                 }
             }
@@ -163,7 +167,7 @@ namespace Assignment2
                     if (row == 0 || col == 0)
                         continue;
 
-                    _imgBitmap.SetPixel(8 * col, 8 * row, Color.Red);
+                    _imgBitmap.SetPixel(8 * col + 3, 8 * row + 3, Color.Red);
                 }
             }
         }
@@ -241,7 +245,7 @@ namespace Assignment2
         // Creates a image matric of y values - to be used as an I-Frame by P-Frame for MAD
         private void populateIFrame()
         {
-            _yIFrame = new double[_imgWidth, _imgHeight];
+            _yIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
 
             int index = 0;
             for ( int x = 0; x < _imgHeight; x++)

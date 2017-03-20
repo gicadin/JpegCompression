@@ -7,3 +7,12 @@ C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.Properties.Re
 C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.csproj.GenerateResource.Cache
 C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.exe
 C:\Users\Andrei\Desktop\COMP4995\Assignment2\obj\Debug\Assignment2.pdb
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\bin\Debug\Assignment2.exe.config
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\bin\Debug\Assignment2.exe
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\bin\Debug\Assignment2.pdb
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.csprojResolveAssemblyReference.cache
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.Form1.resources
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.Properties.Resources.resources
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.csproj.GenerateResource.Cache
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.exe
+C:\Users\A00742675\Desktop\jpeg\JpegCompression\obj\Debug\Assignment2.pdb
