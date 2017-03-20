@@ -34,12 +34,13 @@
             this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CompressBtn = new System.Windows.Forms.Button();
             this.decompressToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rightImg_box = new System.Windows.Forms.PictureBox();
+            this.CompressBtn = new System.Windows.Forms.Button();
+            this.RightImg_box = new System.Windows.Forms.PictureBox();
+            this.compressPFrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.LeftImage_Box)).BeginInit();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.rightImg_box)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RightImg_box)).BeginInit();
             this.SuspendLayout();
             // 
             // LeftImage_Box
@@ -69,7 +70,8 @@
             this.openToolStripMenuItem1,
             this.convertToolStripMenuItem,
             this.compressToolStripMenuItem,
-            this.decompressToolStripMenuItem});
+            this.decompressToolStripMenuItem,
+            this.compressPFrameToolStripMenuItem});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
             this.openToolStripMenuItem.Text = "File";
@@ -77,23 +79,30 @@
             // openToolStripMenuItem1
             // 
             this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
-            this.openToolStripMenuItem1.Size = new System.Drawing.Size(181, 26);
+            this.openToolStripMenuItem1.Size = new System.Drawing.Size(203, 26);
             this.openToolStripMenuItem1.Text = "Open";
             this.openToolStripMenuItem1.Click += new System.EventHandler(this.openToolStripMenuItem1_Click);
             // 
             // convertToolStripMenuItem
             // 
             this.convertToolStripMenuItem.Name = "convertToolStripMenuItem";
-            this.convertToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.convertToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.convertToolStripMenuItem.Text = "Convert";
             this.convertToolStripMenuItem.Click += new System.EventHandler(this.convertToolStripMenuItem_Click);
             // 
             // compressToolStripMenuItem
             // 
             this.compressToolStripMenuItem.Name = "compressToolStripMenuItem";
-            this.compressToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.compressToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.compressToolStripMenuItem.Text = "Compress";
             this.compressToolStripMenuItem.Click += new System.EventHandler(this.compressToolStripMenuItem_Click);
+            // 
+            // decompressToolStripMenuItem
+            // 
+            this.decompressToolStripMenuItem.Name = "decompressToolStripMenuItem";
+            this.decompressToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.decompressToolStripMenuItem.Text = "Decompress";
+            this.decompressToolStripMenuItem.Click += new System.EventHandler(this.decompressToolStripMenuItem_Click);
             // 
             // CompressBtn
             // 
@@ -105,27 +114,27 @@
             this.CompressBtn.UseVisualStyleBackColor = true;
             this.CompressBtn.Click += new System.EventHandler(this.CompressBtn_Click);
             // 
-            // decompressToolStripMenuItem
+            // RightImg_box
             // 
-            this.decompressToolStripMenuItem.Name = "decompressToolStripMenuItem";
-            this.decompressToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
-            this.decompressToolStripMenuItem.Text = "Decompress";
-            this.decompressToolStripMenuItem.Click += new System.EventHandler(this.decompressToolStripMenuItem_Click);
+            this.RightImg_box.Location = new System.Drawing.Point(518, 42);
+            this.RightImg_box.Name = "RightImg_box";
+            this.RightImg_box.Size = new System.Drawing.Size(500, 600);
+            this.RightImg_box.TabIndex = 4;
+            this.RightImg_box.TabStop = false;
             // 
-            // rightImg_box
+            // compressPFrameToolStripMenuItem
             // 
-            this.rightImg_box.Location = new System.Drawing.Point(518, 42);
-            this.rightImg_box.Name = "rightImg_box";
-            this.rightImg_box.Size = new System.Drawing.Size(500, 600);
-            this.rightImg_box.TabIndex = 4;
-            this.rightImg_box.TabStop = false;
+            this.compressPFrameToolStripMenuItem.Name = "compressPFrameToolStripMenuItem";
+            this.compressPFrameToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.compressPFrameToolStripMenuItem.Text = "Compress pFrame";
+            this.compressPFrameToolStripMenuItem.Click += new System.EventHandler(this.compressPFrameToolStripMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1024, 903);
-            this.Controls.Add(this.rightImg_box);
+            this.Controls.Add(this.RightImg_box);
             this.Controls.Add(this.CompressBtn);
             this.Controls.Add(this.LeftImage_Box);
             this.Controls.Add(this.menuStrip1);
@@ -136,7 +145,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.LeftImage_Box)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.rightImg_box)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RightImg_box)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -151,7 +160,8 @@
         private System.Windows.Forms.Button CompressBtn;
         private System.Windows.Forms.ToolStripMenuItem compressToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem decompressToolStripMenuItem;
-        private System.Windows.Forms.PictureBox rightImg_box;
+        private System.Windows.Forms.PictureBox RightImg_box;
+        private System.Windows.Forms.ToolStripMenuItem compressPFrameToolStripMenuItem;
     }
 }
 

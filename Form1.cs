@@ -21,7 +21,7 @@ namespace Assignment2
         Encoder encoder;
         Decoder decoder;
 
-        Bitmap imgBitmap, _rightImgBitmat;
+        Bitmap imgBitmap, _rightImgBitmat, _rightMVBitmap;
         ImageBlock[,] YBlocks, CbBlocks, CrBlocks; 
 
         double[] yValues, cbValues, crValues;
@@ -61,11 +61,12 @@ namespace Assignment2
             using (OpenFileDialog dlg = new OpenFileDialog())
             {
                 dlg.Title = "Open Image";
-                //dlg.Filter = "bmp files (*.bmp)|*.bmp";
+                dlg.Filter = "Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF";
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     imgBitmap = new Bitmap(dlg.FileName);
+                    //showImgBlock();
                     LeftImage_Box.Image = imgBitmap;
                 }
             }
@@ -113,6 +114,42 @@ namespace Assignment2
            */
         }
 
+        private void compressPFrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Title = "Open Image";
+                dlg.Filter = "Image Files(*.BMP;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    _rightImgBitmat = new Bitmap(dlg.FileName);
+                    encoder.compressPFrame(_rightImgBitmat, "asdfasd");
+                    RightImg_box.Image = _rightImgBitmat;
+                }
+            }
+
+                       
+            /*
+            SaveFileDialog saveFileDialogue_ = new SaveFileDialog();
+            saveFileDialogue_.Title = "Save";
+            saveFileDialogue_.Filter = "Andrei pFile|*.pandrei";
+            saveFileDialogue_.ShowDialog();
+
+            if (saveFileDialogue_.FileName != "")
+            {
+                //Console.Text += "The file name is: " + saveFileDialogue_.FileName + System.Environment.NewLine;
+                //compressImg(saveFileDialogue_.FileName);
+                if (imgBitmap != null)
+                {
+                    //encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
+
+                }
+            }
+            */
+        }
+
         private void convertToolStripMenuItem_Click(object sender, EventArgs e)
         {
             
@@ -148,7 +185,7 @@ namespace Assignment2
             }
 
             LeftImage_Box.Image = newImage;
-            rightImg_box.Image = oldImage;
+            RightImg_box.Image = oldImage;
         }
 
         private void compressToolStripMenuItem_Click(object sender, EventArgs e)
@@ -162,8 +199,10 @@ namespace Assignment2
             {
                 //Console.Text += "The file name is: " + saveFileDialogue_.FileName + System.Environment.NewLine;
                 //compressImg(saveFileDialogue_.FileName);
-                if ( imgBitmap != null )
+                if ( imgBitmap != null) { 
                     encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
+                    //encoder.compressPFrame(imgBitmap, saveFileDialogue_.FileName);
+                }
             }
         }
 
@@ -175,7 +214,7 @@ namespace Assignment2
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _rightImgBitmat = decoder.decompressImage(ofd.FileName);
-                rightImg_box.Image = _rightImgBitmat;
+                RightImg_box.Image = _rightImgBitmat;
             }
         }
 
@@ -189,6 +228,29 @@ namespace Assignment2
         {
             System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\cbVal2.txt", cbValues.OfType<double>().Select(o => o.ToString()).ToArray());
             System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\crVal2.txt", crValues.OfType<double>().Select(o => o.ToString()).ToArray());
+        }
+
+        private void showImgBlock()
+        {
+            if ( imgBitmap != null )
+            {
+                for ( int i = 0; i < imgBitmap.Height; i++)
+                {
+                    for ( int j = 0; j < imgBitmap.Width; j+= 8)
+                    {
+                        imgBitmap.SetPixel(i, j, Color.Red);
+                    }
+                }
+
+                for (int i = 0; i < imgBitmap.Height; i++)
+                {
+                    for (int j = 0; j < imgBitmap.Width; j += 8)
+                    {
+                        imgBitmap.SetPixel(j, i, Color.Red);
+                    }
+                }
+            }
+            return;
         }
     }
 }

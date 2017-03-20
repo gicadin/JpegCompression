@@ -11,11 +11,15 @@ namespace Assignment2
 
     class Encoder
     {
+        static int counter = 0;
 
         private int _imgWidth, _imgHeight;
 
         private double[] _yValues, _cbValues, _crValues;
         private ImageBlock[,] _yBlocks, _cbBlocks, _crBlocks;
+
+        private double[,] _yIFrame;
+        private Point[] _motionVectors;
 
         private Bitmap _imgBitmap;
 
@@ -26,6 +30,7 @@ namespace Assignment2
             _imgHeight = image.Height;
 
             convertToYCbCr();
+            populateIFrame();
             populateImgBlocks();
 
             FileStream fileStream = new FileStream(filePath, FileMode.Create);
@@ -44,6 +49,119 @@ namespace Assignment2
             _yBlocks = null;
             _cbBlocks = null;
             _crBlocks = null;
+        }
+
+        public void compressPFrame(Bitmap image, String filePath)
+        {
+            _imgBitmap = image;
+            //_imgWidth = image.Width;
+            //_imgHeight = image.Height;
+
+            convertToYCbCr();       // To remove after finishing compression
+            //populateIFrame();
+            populateImgBlocks();    // To remove later maybe
+
+            findMotionVectors();
+
+            drawMV();
+        }
+
+        private void drawMV()
+        {
+            for ( int i = 0; i < _motionVectors.Length; i++)
+            {
+                if ( _motionVectors[i].X != 0 || _motionVectors[i].Y != 0)
+                {
+                    int row = i / _yBlocks.GetLength(0); 
+                    int col = i % _yBlocks.GetLength(1);
+
+                    if (row == 0 || col == 0)
+                        continue;
+
+                    _imgBitmap.SetPixel(8 * col, 8 * row, Color.Red);
+                }
+            }
+        }
+
+        private void findMotionVectors()
+        {
+            _motionVectors = new Point[_yBlocks.GetLength(0) * _yBlocks.GetLength(1)];
+
+            int index = 0;
+
+            for (int x = 0; x < _yBlocks.GetLength(0); x++)
+            {
+                for ( int y = 0; y < _yBlocks.GetLength(1); y++)
+                {
+                    _motionVectors[index++] = sequentialSearch(x, y);
+                }
+            }
+
+            return;
+        }
+
+        private Point sequentialSearch(int x, int y)
+        {
+            double curMad = 0;
+            double min = 99999;
+            
+            int u = 0, v = 0;
+            int p = 8;
+
+            int relativeX = x * 8;
+            int relativeY = y * 8;
+
+            for ( int i = -1 * p; i < p; i++)
+            {
+                for ( int j = -1 * p; j < p; j++)
+                {
+                    if (relativeX + i < 0)
+                        continue;
+                    else if (relativeX + i > _imgHeight - 8)
+                        continue;
+                    else if (relativeY + j < 0)
+                        continue;
+                    else if (relativeY + j > _imgWidth - 8)
+                        continue;
+
+                    curMad = mad(_yBlocks[x, y], relativeX, relativeY, i, j);
+                    if ( curMad < min )
+                    {
+                        min = curMad;
+                        u = i;
+                        v = j;
+                    }
+                }
+            }
+
+            return new Point(u, v);
+        }
+
+        private double mad(ImageBlock imgBlock, int x, int y, int i, int j)
+        {
+            double difference = 0;
+
+            for (int k = 0; k < 8; k++)
+            {
+                for (int l = 0; l < 8; l++)
+                {
+                    difference += imgBlock.imgBlock[k, l] - _yIFrame[x + i + k, y + j + l];
+                    counter++;
+                }
+            }
+
+            return Math.Abs(difference) / 64;
+        }
+
+        // Creates a image matric of y values - to be used as an I-Frame by P-Frame for MAD
+        private void populateIFrame()
+        {
+            _yIFrame = new double[_imgWidth, _imgHeight];
+
+            int index = 0;
+            for ( int x = 0; x < _imgHeight; x++)
+                for ( int y = 0; y < _imgWidth; y++ )
+                    _yIFrame[x, y] = _yValues[index++];
         }
 
         // Converts img to YCrCB and also subsamples
