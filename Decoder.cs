@@ -50,14 +50,72 @@ namespace Assignment2
             return _imgBitmap;
         }
 
-        public void decompressPFrame(String filePath)
+        public Bitmap decompressPFrame(String filePath)
         {
             readMotionVectors(filePath);
 
-            return;
+            initImgBlocks();
+
+            decodeImgBlock(_yBlocks, _yValues, Form1.luminanceTable);
+
+            imageDifference();
+
+            _yValues = yBlockToValues();
+
+            _imgBitmap = new Bitmap(_imgWidth, _imgHeight);
+
+            int red = 0, green = 0, blue = 0;
+            int index = 0;
+
+            int counterR = 0, counterG = 0, counterB = 0;
+
+            for (int y = 0; y < _imgHeight; y++)
+            {
+
+                for (int x = 0; x < _imgWidth; x++, index++)
+                {
+                    int color = 0;
+                    if (_yValues[index] < 0)
+                        color = 0;
+                    else if (_yValues[index] > 255)
+                        color = 255;
+                    _imgBitmap.SetPixel(x, y, Color.FromArgb(color, color, color));
+                }
+            }
+
+            return _imgBitmap;
         }
 
+        private void imageDifference()
+        {
+            int index = 0;
+            for (int i = 0; i < _yBlocks.GetLength(0); i++)
+            {
+                for (int j = 0; j < _yBlocks.GetLength(1); j++)
+                {
+                    _yBlocks[i, j].imgBlock = imgBlockDifference(_yBlocks[i, j], _motionVectors[index++], i, j);
+                }
+            }
+        }
 
+        private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
+        {
+            int relativeX = x * 8 + 4;
+            int relativeY = y * 8 + 4;
+
+            double[,] newF = new double[8, 8];
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    double tmp = _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                    newF[i, j] = imgBlock.imgBlock[i, j] + _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                }
+            }
+
+            return newF;
+        }
 
         private void readMotionVectors(String filePath)
         {
@@ -72,13 +130,41 @@ namespace Assignment2
                 _motionVectors[i].Y = Convert.ToInt32(reader.ReadSByte());
             }
 
+            long fileSize = new System.IO.FileInfo(filePath).Length;
+            long fileInfoSize = fileSize - 4 - 2 * size;       // File size - Header size (header is 8 bytes)
+
+            int[] fileContents = new int[fileInfoSize];
+
+            for (int i = 0; i < fileInfoSize; i++)
+            {
+                sbyte tmp = reader.ReadSByte();
+                fileContents[i] = Convert.ToInt32(tmp);
+            }
+
+            reader.Close();
+
+            int blockImgWidth = (int)Math.Ceiling((double)_imgWidth / 8);
+            int blockImgHeight = (int)Math.Ceiling((double)_imgHeight / 8);
+            int ySize = blockImgWidth * blockImgHeight * 64;
+
+            int[] fileContentsDecoded = runLengthDecode(fileContents, ySize);
+            //fileContents = null;
+
+            _yValues = new double[ySize];
+            for (int i = 0; i < fileContentsDecoded.Length; i++)
+            {
+                    _yValues[i] = fileContentsDecoded[i];
+
+            }
+
             return;
         }
+
 
         // Creates a image matric of y values - to be used as an I-Frame by P-Frame for MAD
         private void populateIFrame()
         {
-            _yIFrame = new double[_imgWidth, _imgHeight];
+            _yIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
 
             int index = 0;
             for (int x = 0; x < _imgHeight; x++)
@@ -170,7 +256,7 @@ namespace Assignment2
             }
         }
 
-        private double[,] idct(double[,] F)
+        public double[,] idct(double[,] F)
         {
             double[,] newF = new double[8, 8];
             double sum = 0;
@@ -205,7 +291,7 @@ namespace Assignment2
             return newF;
         }
 
-        private double[,] dquantization(int[,] F, int[] Q)
+        public double[,] dquantization(double[,] F, int[] Q)
         {
             double[,] newF = new double[8, 8];
 
@@ -216,9 +302,9 @@ namespace Assignment2
             return newF;
         }
 
-        private int[,] dzigzag(int[] F)
+        public double[,] dzigzag(int[] F)
         {
-            int[,] newF = new int[8, 8];
+            double[,] newF = new double[8, 8];
 
             int n = 8;
             int i = 0, j = 0;
@@ -247,7 +333,7 @@ namespace Assignment2
             return newF;
         }
 
-        private int[] runLengthDecode(int[] F, int size)
+        public int[] runLengthDecode(int[] F, int size)
         {
             if ( size != validateCompressedSize(F))
             {
@@ -287,7 +373,7 @@ namespace Assignment2
             return newF;
         }
 
-        private void meanIncrease(double[,] F)
+        public void meanIncrease(double[,] F)
         {
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)

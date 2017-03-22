@@ -18,10 +18,11 @@ namespace Assignment2
         private double[] _yValues, _cbValues, _crValues;
         private ImageBlock[,] _yBlocks, _cbBlocks, _crBlocks;
 
-        private double[,] _yIFrame;
+        private double[,] _yIFrame, _cbIFrame, _crIFrame;
         private Point[] _motionVectors;
 
         private Bitmap _imgBitmap;
+        private Decoder tstDecoder;
 
         public void compressImage(Bitmap image, String filePath)
         {
@@ -99,6 +100,10 @@ namespace Assignment2
             sbyte[] blockBytes;
             byte[] equivalentBytes;
             int index = 0;
+
+            tstDecoder = new Decoder();
+            double[,] tstBlock = new double[8,8];
+
             for (int i = 0; i < imgBlock.GetLength(0); i++)
             {
                 for (int j = 0; j < imgBlock.GetLength(1); j++)
@@ -106,16 +111,13 @@ namespace Assignment2
 
                     if (_motionVectors[index].X == 0 && _motionVectors[index].Y == 0)
                     {
-                        blockInts = new int[] { 0, 64 };
-                        index++;
+                        blockInts = new int[] { 0, 64 };                      
                     }
                     else
                     {
-                        //meanReduce(imgBlock[i, j].imgBlock);
-                        blockInts = runLengthEncoding(zigzag(pQuantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)))));
-                        index++;
-                    }      
-
+                        blockInts = runLengthEncoding(zigzag(quantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)), Form1.luminanceTable)));
+                    }
+                    index++;
                     blockBytes = new sbyte[blockInts.Length];
 
                     for (int k = 0; k < blockInts.Length; k++)
@@ -167,7 +169,7 @@ namespace Assignment2
                     if (row == 0 || col == 0)
                         continue;
 
-                    _imgBitmap.SetPixel(8 * col + 3, 8 * row + 3, Color.Red);
+                    _imgBitmap.SetPixel(8 * col, 8 * row, Color.Red);
                 }
             }
         }
@@ -528,23 +530,6 @@ namespace Assignment2
                 for (int j = 0; j < 8; j++, k++)
                 {
                     newF[i, j] = (int)Math.Round(F[i, j] / Q[k]);
-                }
-            }
-
-            return newF;
-        }
-
-        private int[,] pQuantization(double[,] F)
-        {
-            int SCALING = 4;
-
-            int[,] newF = new int[8, 8];
-
-            for (int i = 0, k = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++, k++)
-                {
-                    newF[i, j] = (int)Math.Floor(F[i, j] / SCALING);
                 }
             }
 

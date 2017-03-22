@@ -156,8 +156,8 @@ namespace Assignment2
             ofd.Filter = "Andrei pFile|*.pandrei";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                decoder.decompressPFrame(ofd.FileName);
-                //BttmImg_Box.Image = _bttmImgBitmap;
+                _bttmImgBitmap = decoder.decompressPFrame(ofd.FileName);
+                BttmImg_Box.Image = _bttmImgBitmap;
             }
         }
 
