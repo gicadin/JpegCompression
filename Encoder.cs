@@ -22,7 +22,6 @@ namespace Assignment2
         private Point[] _motionVectors;
 
         private Bitmap _imgBitmap;
-        private Decoder tstDecoder;
 
         public void compressImage(Bitmap image, String filePath)
         {
@@ -101,7 +100,6 @@ namespace Assignment2
             byte[] equivalentBytes;
             int index = 0;
 
-            tstDecoder = new Decoder();
             double[,] tstBlock = new double[8,8];
 
             for (int i = 0; i < imgBlock.GetLength(0); i++)

@@ -19,7 +19,7 @@ namespace Assignment2
         private Bitmap _imgBitmap;
 
         private Point[] _motionVectors;
-        private double[,] _yIFrame;
+        private double[,] _yIFrame, _cbIFrame, _crIFrame;
 
         public Bitmap decompressImage(String filePath)
         {
@@ -56,7 +56,16 @@ namespace Assignment2
 
             initImgBlocks();
 
-            decodeImgBlock(_yBlocks, _yValues, Form1.luminanceTable);
+            int index = 0;
+            for (int i = 0; i < _yBlocks.GetLength(0); i++)
+            {
+                for (int j = 0; j < _yBlocks.GetLength(1); j++)
+                {
+                    _yBlocks[i, j].imgBlock = idct(dquantization(dzigzag(arrayCopy(_yValues, index)), Form1.luminanceTable));
+
+                    index += 64;
+                }
+            }
 
             imageDifference();
 
@@ -64,17 +73,14 @@ namespace Assignment2
 
             _imgBitmap = new Bitmap(_imgWidth, _imgHeight);
 
-            int red = 0, green = 0, blue = 0;
-            int index = 0;
-
-            int counterR = 0, counterG = 0, counterB = 0;
+            index = 0;
 
             for (int y = 0; y < _imgHeight; y++)
             {
 
                 for (int x = 0; x < _imgWidth; x++, index++)
                 {
-                    int color = 0;
+                    int color = (int)_yValues[index];
                     if (_yValues[index] < 0)
                         color = 0;
                     else if (_yValues[index] > 255)
@@ -96,12 +102,13 @@ namespace Assignment2
                     _yBlocks[i, j].imgBlock = imgBlockDifference(_yBlocks[i, j], _motionVectors[index++], i, j);
                 }
             }
+            return;
         }
 
         private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
         {
-            int relativeX = x * 8 + 4;
-            int relativeY = y * 8 + 4;
+            int relativeX = x * 8;
+            int relativeY = y * 8;
 
             double[,] newF = new double[8, 8];
 
@@ -154,7 +161,6 @@ namespace Assignment2
             for (int i = 0; i < fileContentsDecoded.Length; i++)
             {
                     _yValues[i] = fileContentsDecoded[i];
-
             }
 
             return;
@@ -165,11 +171,24 @@ namespace Assignment2
         private void populateIFrame()
         {
             _yIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
+            _cbIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
+            _crIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
 
             int index = 0;
             for (int x = 0; x < _imgHeight; x++)
                 for (int y = 0; y < _imgWidth; y++)
                     _yIFrame[x, y] = _yValues[index++];
+
+            /*
+            index = 0;
+            for (int x = 0; x < _imgHeight; x++)
+                for (int y = 0; y < _imgWidth; y++)
+                    _cbIFrame[x, y] = _cbValues[index++];
+
+            for (int x = 0; x < _imgHeight; x++)
+                for (int y = 0; y < _imgWidth; y++)
+                    _yIFrame[x, y] = _yValues[index++];
+            */
         }
 
         private void readFileIntoValues(String filePath)
@@ -247,8 +266,8 @@ namespace Assignment2
                     {
                         for (int l = 0; l < 8; l++)
                         {
-                            if (imgBlock[i, j].imgBlock[k, l] > 255)
-                                imgBlock[i, j].imgBlock[k, l] = 255;
+                            //if (imgBlock[i, j].imgBlock[k, l] > 255)
+                                //imgBlock[i, j].imgBlock[k, l] = 255;
                         }
                     }
                     index += 64;
