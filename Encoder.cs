@@ -69,7 +69,10 @@ namespace Assignment2
             BinaryWriter writer = new BinaryWriter(fileStream);
 
             writeMotionVectors(writer);
-            writePBlocks(writer, _yBlocks);
+            writePBlocks(writer, _yIFrame, _yBlocks, Form1.luminanceTable);
+            writePBlocks(writer, _cbIFrame, _cbBlocks, Form1.chrominanceTable);
+            writePBlocks(writer, _crIFrame, _crBlocks, Form1.chrominanceTable);
+
 
             writer.Close();
             fileStream.Close();
@@ -93,14 +96,12 @@ namespace Assignment2
             }
         }
 
-        private void writePBlocks(BinaryWriter writer, ImageBlock[,] imgBlock)
+        private void writePBlocks(BinaryWriter writer, double[,] iFrame, ImageBlock[,] imgBlock, int[] quantizationTable)
         {
             int[] blockInts;
             sbyte[] blockBytes;
             byte[] equivalentBytes;
             int index = 0;
-
-            double[,] tstBlock = new double[8,8];
 
             for (int i = 0; i < imgBlock.GetLength(0); i++)
             {
@@ -113,7 +114,7 @@ namespace Assignment2
                     }
                     else
                     {
-                        blockInts = runLengthEncoding(zigzag(quantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)), Form1.luminanceTable)));
+                        blockInts = runLengthEncoding(zigzag(quantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)), quantizationTable)));
                     }
                     index++;
                     blockBytes = new sbyte[blockInts.Length];
@@ -123,8 +124,7 @@ namespace Assignment2
                         // This is a test to see if any values are greater than 128
                         if (blockInts[k] > 127)
                             blockInts[k] = 127;
-
-                        if (blockInts[k] < -128)
+                        else if (blockInts[k] < -128)
                             blockInts[k] = -128;
 
                         blockBytes[k] = Convert.ToSByte(blockInts[k]);
@@ -251,6 +251,19 @@ namespace Assignment2
             for ( int x = 0; x < _imgHeight; x++)
                 for ( int y = 0; y < _imgWidth; y++ )
                     _yIFrame[x, y] = _yValues[index++];
+
+            index = 0;
+            _cbIFrame = new double[(int)Math.Ceiling(_imgWidth / 16.0), (int)Math.Ceiling(_imgHeight / 16.0)];
+            for (int x = 0; x < _cbIFrame.GetLength(0); x++)
+                for (int y = 0; y < _cbIFrame.GetLength(1); y++)
+                    _cbIFrame[x, y] = _cbValues[index++];
+
+            index = 0;
+            _crIFrame = new double[(int)Math.Ceiling(_imgWidth / 16.0), (int)Math.Ceiling(_imgHeight / 16.0)];
+            for (int x = 0; x < _crIFrame.GetLength(0); x++)
+                for (int y = 0; y < _crIFrame.GetLength(1); y++)
+                    _crIFrame[x, y] = _crValues[index++];
+
         }
 
         // Converts img to YCrCB and also subsamples

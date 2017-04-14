@@ -36,10 +36,10 @@ namespace Assignment2
             _crValues = chBlockToValues(_crBlocks);
             _crBlocks = null;
 
-            populateIFrame();
-
             _cbValues = interpolateCbValues();
             _crValues = interpolateCrValues();
+
+            populateIFrame();
 
             drawBitmap();
 
@@ -56,56 +56,50 @@ namespace Assignment2
 
             initImgBlocks();
 
-            int index = 0;
-            for (int i = 0; i < _yBlocks.GetLength(0); i++)
-            {
-                for (int j = 0; j < _yBlocks.GetLength(1); j++)
-                {
-                    _yBlocks[i, j].imgBlock = idct(dquantization(dzigzag(arrayCopy(_yValues, index)), Form1.luminanceTable));
+            decodeImgBlock(_yBlocks, _yValues, Form1.luminanceTable, false);
+            decodeImgBlock(_cbBlocks, _cbValues, Form1.chrominanceTable, false);
+            decodeImgBlock(_crBlocks, _crValues, Form1.chrominanceTable, false);
 
-                    index += 64;
-                }
-            }
-
-            imageDifference();
+            imageDifference(_yIFrame, _yBlocks);
+            imageDifference(_cbIFrame, _cbBlocks);
+            imageDifference(_crIFrame, _crBlocks);
 
             _yValues = yBlockToValues();
+            _yBlocks = null;
 
-            _imgBitmap = new Bitmap(_imgWidth, _imgHeight);
+            _cbValues = chBlockToValues(_cbBlocks);
+            _cbBlocks = null;
 
-            index = 0;
+            _crValues = chBlockToValues(_crBlocks);
+            _crBlocks = null;
 
-            for (int y = 0; y < _imgHeight; y++)
-            {
+            _cbValues = interpolateCbValues();
+            _crValues = interpolateCrValues();
 
-                for (int x = 0; x < _imgWidth; x++, index++)
-                {
-                    int color = (int)_yValues[index];
-                    if (_yValues[index] < 0)
-                        color = 0;
-                    else if (_yValues[index] > 255)
-                        color = 255;
-                    _imgBitmap.SetPixel(x, y, Color.FromArgb(color, color, color));
-                }
-            }
+            drawBitmap();
 
             return _imgBitmap;
+
         }
 
-        private void imageDifference()
+        private void imageDifference(double[,] iFrame, ImageBlock[,] imgBlock)
         {
             int index = 0;
-            for (int i = 0; i < _yBlocks.GetLength(0); i++)
+            for (int i = 0; i < imgBlock.GetLength(0); i++)
             {
-                for (int j = 0; j < _yBlocks.GetLength(1); j++)
+                for (int j = 0; j < imgBlock.GetLength(1); j++)
                 {
-                    _yBlocks[i, j].imgBlock = imgBlockDifference(_yBlocks[i, j], _motionVectors[index++], i, j);
+                    imgBlock[i, j].imgBlock = imgBlockDifference(iFrame, imgBlock[i, j], _motionVectors[index++], i, j);
+                    //_yBlocks[i, j].imgBlock = imgBlockDifference(_yIFrame, _yBlocks[i, j], _motionVectors[index], i, j);
+                    //_cbBlocks[i, j].imgBlock = imgBlockDifference(_cbIFrame, _cbBlocks[i, j], _motionVectors[index], i, j);
+                    //_crBlocks[i, j].imgBlock = imgBlockDifference(_crIFrame, _crBlocks[i, j], _motionVectors[index], i, j);
+                    //index++;
                 }
             }
             return;
         }
 
-        private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
+        private double[,] imgBlockDifference(double[,] iFrame, ImageBlock imgBlock, Point mv, int x, int y)
         {
             int relativeX = x * 8;
             int relativeY = y * 8;
@@ -116,8 +110,8 @@ namespace Assignment2
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    double tmp = _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
-                    newF[i, j] = imgBlock.imgBlock[i, j] + _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                    double tmp = iFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                    newF[i, j] = imgBlock.imgBlock[i, j] + iFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
                 }
             }
 
@@ -154,41 +148,53 @@ namespace Assignment2
             int blockImgHeight = (int)Math.Ceiling((double)_imgHeight / 8);
             int ySize = blockImgWidth * blockImgHeight * 64;
 
-            int[] fileContentsDecoded = runLengthDecode(fileContents, ySize);
+            blockImgWidth = (int)Math.Ceiling((double)_imgWidth / 16);
+            blockImgHeight = (int)Math.Ceiling((double)_imgHeight / 16);
+
+            int cbSize = blockImgWidth * blockImgHeight * 64;
+
+            int[] fileContentsDecoded = runLengthDecode(fileContents, ySize + cbSize * 2);
             //fileContents = null;
 
             _yValues = new double[ySize];
-            for (int i = 0; i < fileContentsDecoded.Length; i++)
+            _cbValues = new double[cbSize];
+            _crValues = new double[cbSize];
+            for (int i = 0, j = 0, k = 0; i < fileContentsDecoded.Length; i++)
             {
+                if (i < ySize)
                     _yValues[i] = fileContentsDecoded[i];
+                else if (i < ySize + cbSize)
+                    _cbValues[j++] = fileContentsDecoded[i];
+                else
+                    _crValues[k++] = fileContentsDecoded[i];
             }
+
+            fileContentsDecoded = null;
 
             return;
         }
 
-
-        // Creates a image matric of y values - to be used as an I-Frame by P-Frame for MAD
+        // Creates a image matrix of y values - to be used as an I-Frame by P-Frame for MAD
         private void populateIFrame()
         {
-            _yIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
-            _cbIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
-            _crIFrame = new double[(int)Math.Round(_imgWidth / 8.0) * 8, (int)Math.Round(_imgHeight / 8.0) * 8];
+            int width = (int)Math.Round(_imgWidth / 8.0) * 8,
+                height = (int)Math.Round(_imgHeight / 8.0) * 8;
+
+            _yIFrame = new double[width, height];
+            _cbIFrame = new double[width, height];
+            _crIFrame = new double[width, height];
 
             int index = 0;
             for (int x = 0; x < _imgHeight; x++)
+            {
                 for (int y = 0; y < _imgWidth; y++)
-                    _yIFrame[x, y] = _yValues[index++];
-
-            /*
-            index = 0;
-            for (int x = 0; x < _imgHeight; x++)
-                for (int y = 0; y < _imgWidth; y++)
-                    _cbIFrame[x, y] = _cbValues[index++];
-
-            for (int x = 0; x < _imgHeight; x++)
-                for (int y = 0; y < _imgWidth; y++)
-                    _yIFrame[x, y] = _yValues[index++];
-            */
+                {
+                    _yIFrame[x, y] = _yValues[index];
+                    _cbIFrame[x, y] = _cbValues[index];
+                    _crIFrame[x, y] = _crValues[index];
+                    index++;
+                }
+            }
         }
 
         private void readFileIntoValues(String filePath)
@@ -253,7 +259,7 @@ namespace Assignment2
             _crValues = null;
         }
 
-        private void decodeImgBlock(ImageBlock[,] imgBlock, double[] values, int[] quantizeTable)
+        private void decodeImgBlock(ImageBlock[,] imgBlock, double[] values, int[] quantizeTable, bool isIncreased = true)
         {
             int index = 0;
             for (int i = 0; i < imgBlock.GetLength(0); i++)
@@ -261,7 +267,10 @@ namespace Assignment2
                 for (int j = 0; j < imgBlock.GetLength(1); j++)
                 {
                     imgBlock[i, j].imgBlock = idct(dquantization(dzigzag(arrayCopy(values, index)), quantizeTable));
-                    meanIncrease(imgBlock[i, j].imgBlock);
+
+                    if (isIncreased)
+                        meanIncrease(imgBlock[i, j].imgBlock);
+
                     for (int k = 0; k < 8; k++)
                     {
                         for (int l = 0; l < 8; l++)
