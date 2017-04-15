@@ -90,10 +90,7 @@ namespace Assignment2
                 for (int j = 0; j < imgBlock.GetLength(1); j++)
                 {
                     imgBlock[i, j].imgBlock = imgBlockDifference(iFrame, imgBlock[i, j], _motionVectors[index++], i, j);
-                    //_yBlocks[i, j].imgBlock = imgBlockDifference(_yIFrame, _yBlocks[i, j], _motionVectors[index], i, j);
-                    //_cbBlocks[i, j].imgBlock = imgBlockDifference(_cbIFrame, _cbBlocks[i, j], _motionVectors[index], i, j);
-                    //_crBlocks[i, j].imgBlock = imgBlockDifference(_crIFrame, _crBlocks[i, j], _motionVectors[index], i, j);
-                    //index++;
+
                 }
             }
             return;
@@ -181,20 +178,44 @@ namespace Assignment2
                 height = (int)Math.Round(_imgHeight / 8.0) * 8;
 
             _yIFrame = new double[width, height];
+
+            width = (int)Math.Ceiling(_imgWidth / 16.0) * 8;
+            height = (int)Math.Ceiling(_imgHeight / 16.0) * 8;
+
             _cbIFrame = new double[width, height];
             _crIFrame = new double[width, height];
 
-            int index = 0;
+            int index = 0, 
+                cb_x = 0, 
+                cb_y = 0, 
+                cr_x = 0, 
+                cr_y = 0;
+
             for (int x = 0; x < _imgHeight; x++)
             {
                 for (int y = 0; y < _imgWidth; y++)
                 {
                     _yIFrame[x, y] = _yValues[index];
-                    _cbIFrame[x, y] = _cbValues[index];
-                    _crIFrame[x, y] = _crValues[index];
+
+                    if ((y == 0 || y % 2 == 0) && (x == 0 || x % 2 == 0))
+                    {   
+                        _cbIFrame[cb_x, cb_y++] = _cbValues[index];
+                    }
+                    else if ((y == 0 || y % 2 == 0) && x % 2 == 1)
+                    {
+                        _crIFrame[cr_x, cr_y++] = _crValues[index];
+                    }
                     index++;
                 }
+                cb_y = 0;
+                cr_y = 0;
+                if (x % 2 == 0)
+                    cb_x++;
+                else
+                    cr_x++;
             }
+
+            return;
         }
 
         private void readFileIntoValues(String filePath)
@@ -259,7 +280,7 @@ namespace Assignment2
             _crValues = null;
         }
 
-        private void decodeImgBlock(ImageBlock[,] imgBlock, double[] values, int[] quantizeTable, bool isIncreased = true)
+        private void decodeImgBlock(ImageBlock[,] imgBlock, double[] values, int[] quantizeTable, bool isIFrame = true)
         {
             int index = 0;
             for (int i = 0; i < imgBlock.GetLength(0); i++)
@@ -268,7 +289,7 @@ namespace Assignment2
                 {
                     imgBlock[i, j].imgBlock = idct(dquantization(dzigzag(arrayCopy(values, index)), quantizeTable));
 
-                    if (isIncreased)
+                    if (isIFrame)
                         meanIncrease(imgBlock[i, j].imgBlock);
 
                     for (int k = 0; k < 8; k++)
@@ -685,5 +706,11 @@ namespace Assignment2
 
             return counter;
         }
+
+        public double[] getYValues() { return _yValues; }
+
+        public double[] getCbValues() { return _cbValues; }
+
+        public double[] getCrValues() { return _crValues; }
     }
 }

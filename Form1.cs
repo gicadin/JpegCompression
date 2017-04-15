@@ -126,7 +126,6 @@ namespace Assignment2
                 {
                     _rightImgBitmat = new Bitmap(dlg.FileName);
                     
-                   
                 }
             }
 
@@ -144,6 +143,7 @@ namespace Assignment2
                     //encoder.compressImage(imgBitmap, saveFileDialogue_.FileName);
                     encoder.compressPFrame(_rightImgBitmat, saveFileDialogue_.FileName);
                     RightImg_Box.Image = _rightImgBitmat;
+                    //printToFile();
                 }
             }
            
@@ -158,6 +158,7 @@ namespace Assignment2
             {
                 _bttmImgBitmap = decoder.decompressPFrame(ofd.FileName);
                 BttmImg_Box.Image = _bttmImgBitmap;
+                //printToFile2();
             }
         }
 
@@ -231,14 +232,16 @@ namespace Assignment2
 
         private void printToFile()
         {
-            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\cbVal1.txt", cbValues.OfType<double>().Select(o => o.ToString()).ToArray());
-            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\crVal1.txt", crValues.OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\yVal1.txt", encoder.getYValues().OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\cbVal1.txt", encoder.getCbValues().OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\crVal1.txt", encoder.getCrValues().OfType<double>().Select(o => o.ToString()).ToArray());
         }
 
         private void printToFile2()
         {
-            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\cbVal2.txt", cbValues.OfType<double>().Select(o => o.ToString()).ToArray());
-            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\crVal2.txt", crValues.OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\yVal2.txt", decoder.getYValues().OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\cbVal2.txt", decoder.getCbValues().OfType<double>().Select(o => o.ToString()).ToArray());
+            System.IO.File.WriteAllLines(@"C:\Users\Andrei\Desktop\COMP4932\crVal2.txt", decoder.getCrValues().OfType<double>().Select(o => o.ToString()).ToArray());
         }
 
         private void showImgBlock()

@@ -73,7 +73,6 @@ namespace Assignment2
             writePBlocks(writer, _cbIFrame, _cbBlocks, Form1.chrominanceTable);
             writePBlocks(writer, _crIFrame, _crBlocks, Form1.chrominanceTable);
 
-
             writer.Close();
             fileStream.Close();
 
@@ -114,7 +113,7 @@ namespace Assignment2
                     }
                     else
                     {
-                        blockInts = runLengthEncoding(zigzag(quantization(dct(imgBlockDifference(imgBlock[i, j], _motionVectors[index], i, j)), quantizationTable)));
+                        blockInts = runLengthEncoding(zigzag(quantization(dct(imgBlockDifference(iFrame, imgBlock[i, j], _motionVectors[index], i, j)), quantizationTable)));
                     }
                     index++;
                     blockBytes = new sbyte[blockInts.Length];
@@ -136,10 +135,10 @@ namespace Assignment2
             }
         }
 
-        private double[,] imgBlockDifference(ImageBlock imgBlock, Point mv, int x, int y)
+        private double[,] imgBlockDifference(double[,] iFrame, ImageBlock imgBlock, Point mv, int x, int y)
         {
-            int relativeX = x * 8 + 4;
-            int relativeY = y * 8 + 4;
+            int relativeX = x * 8 + 4 - 1;
+            int relativeY = y * 8 + 4 - 1;
 
             double[,] newF = new double[8, 8];
 
@@ -147,8 +146,8 @@ namespace Assignment2
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    double tmp = _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
-                    newF[i, j] = imgBlock.imgBlock[i, j] - _yIFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                    double tmp = iFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
+                    newF[i, j] = imgBlock.imgBlock[i, j] - iFrame[relativeX + mv.X + i, relativeY + mv.Y + j];
                 }
             }
 
@@ -253,17 +252,18 @@ namespace Assignment2
                     _yIFrame[x, y] = _yValues[index++];
 
             index = 0;
-            _cbIFrame = new double[(int)Math.Ceiling(_imgWidth / 16.0), (int)Math.Ceiling(_imgHeight / 16.0)];
-            for (int x = 0; x < _cbIFrame.GetLength(0); x++)
-                for (int y = 0; y < _cbIFrame.GetLength(1); y++)
+            _cbIFrame = new double[(int)Math.Round(_imgWidth / 16.0) * 8, (int)Math.Round(_imgHeight / 16.0) * 8];
+            for (int x = 0; x < _imgHeight / 2; x++)
+                for (int y = 0; y < _imgWidth / 2; y++)
                     _cbIFrame[x, y] = _cbValues[index++];
 
             index = 0;
-            _crIFrame = new double[(int)Math.Ceiling(_imgWidth / 16.0), (int)Math.Ceiling(_imgHeight / 16.0)];
-            for (int x = 0; x < _crIFrame.GetLength(0); x++)
-                for (int y = 0; y < _crIFrame.GetLength(1); y++)
+            _crIFrame = new double[(int)Math.Round(_imgWidth / 16.0) * 8, (int)Math.Round(_imgHeight / 16.0) * 8];
+            for (int x = 0; x < _imgHeight / 2; x++)
+                for (int y = 0; y < _imgWidth / 2; y++)
                     _crIFrame[x, y] = _crValues[index++];
 
+            return;
         }
 
         // Converts img to YCrCB and also subsamples
@@ -624,5 +624,11 @@ namespace Assignment2
 
             return finalF;
         }
+
+        public double[] getYValues() { return _yValues; }
+
+        public double[] getCbValues() { return _cbValues; }
+        
+        public double[] getCrValues() { return _crValues; }
     }
 }
